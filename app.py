@@ -1,6 +1,6 @@
 from flask import Flask, request
 import hmac
-from hashlib import sha256
+import hashlib
 import git
 from environs import Env
 
@@ -37,7 +37,7 @@ def verify_signature(payload_body, secret_token, signature_header):
 @app.route("/ghook_cms", methods=['POST', 'GET'])
 def deploy_cms():
     if request.method == 'POST':
-        if verify_signature(request.body(), env("GH_SECRET"), request.headers.get('x-hub-signature-256')):
+        if verify_signature(request.data, env("GH_SECRET"), request.headers.get('x-hub-signature-256')):
             # LOCAL:
             #local_dir = '/home/user/bk/headlessDjango'
             # LIVE:
