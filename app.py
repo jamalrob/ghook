@@ -11,7 +11,7 @@ env.read_env()
 
 @app.route("/")
 def hello_world():
-    return "<p>Hello, World!</p>"
+    return "<p>Hello again, world!</p>"
 
 def verify_signature(req):
      received_sign = req.headers.get('X-Hub-Signature-256').split('sha256=')[-1].strip()
