@@ -3,6 +3,8 @@ import hmac
 import hashlib
 import git
 from environs import Env
+import json
+
 
 app = Flask(__name__)
 
@@ -12,6 +14,7 @@ env.read_env()
 @app.route("/")
 def hello_world():
     return "<p>Hello world</p>"
+
 
 def verify_signature(payload_body, secret_token, signature_header):
     """Verify that the payload was sent from GitHub by validating SHA256.
@@ -28,16 +31,11 @@ def verify_signature(payload_body, secret_token, signature_header):
         expected_signature = "sha256=" + hash_object.hexdigest()
         return hmac.compare_digest(expected_signature, signature_header)
 
-#def verify_signature(req):
-#     received_sign = req.headers.get('X-Hub-Signature-256').split('sha256=')[-1].strip()
-#     secret = env("GH_SECRET").encode()
-#     expected_sign = HMAC(key=secret, msg=req.data, digestmod=sha256).hexdigest()
-#     return compare_digest(received_sign, expected_sign)
 
 @app.route("/ghook_cms", methods=['POST', 'GET'])
 def deploy_cms():
     if request.method == 'POST':
-        if verify_signature(request.data, env("GH_SECRET"), request.headers.get('x-hub-signature-256')):
+        if verify_signature(request.get_data(), env("GH_SECRET"), request.headers.get('x-hub-signature-256')):
             # LOCAL:
             #local_dir = '/home/user/bk/headlessDjango'
             # LIVE:
