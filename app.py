@@ -19,7 +19,10 @@ def verify_signature(req):
 def deploy_cms():
     if request.method == 'POST':
         if verify_signature(request):
-            local_dir = '/home/user/bk/headlessDjango'
+            # LOCAL:
+            #local_dir = '/home/user/bk/headlessDjango'
+            # LIVE:
+            local_dir = '/home/jamal/headlessDjangoSite/headlessDjango'
             repo = git.Repo(local_dir)
             current = repo.head.commit
             repo.remotes.origin.pull()
