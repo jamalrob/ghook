@@ -12,34 +12,26 @@ app = Flask(__name__)
 env = Env()
 env.read_env()
 
-@app.route("/")
-def hello_world():
-    #subprocess.run(["print('cheese')"])
-    #subprocess.run(["print('hello')", ""])
-    #process = subprocess.Popen(["mkdir", "cheese2"])
-    #process = subprocess.Popen(["sudo", "systemctl", "restart", "gunicorn"])
-    #stdout, stderr = process.communicate()
-    return "<p>Hello world</p>"
-
-
 def verify_signature(payload_body, secret_token, signature_header):
-    """Verify that the payload was sent from GitHub by validating SHA256.
+    """ Verify that the payload was sent from GitHub by validating SHA256.
 
-    Raise and return 403 if not authorized.
-
-    Args:
-        payload_body: original request body to verify (request.body())
-        secret_token: GitHub app webhook token (WEBHOOK_SECRET)
-        signature_header: header received from GitHub (x-hub-signature-256)
+        Raise and return 403 if not authorized.
     """
     if signature_header:
         hash_object = hmac.new(secret_token.encode('utf-8'), msg=payload_body, digestmod=hashlib.sha256)
         expected_signature = "sha256=" + hash_object.hexdigest()
         return hmac.compare_digest(expected_signature, signature_header)
 
+@app.route("/")
+def hello_world():
+    return "<p>Hello world</p>"
 
 @app.route("/ghook_cms", methods=['POST', 'GET'])
 def deploy_cms():
+    """ If the request is valid:
+        1. Pull the new code (which has just been pushed)
+        2. Restart Gunicorn/Django, etc
+    """
     if request.method == 'POST':
         if verify_signature(request.get_data(), env("GH_SECRET"), request.headers.get('x-hub-signature-256')):
             local_dir = '/home/jamal/headlessDjangoSite/headlessDjango'
