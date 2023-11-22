@@ -4,6 +4,7 @@ import hashlib
 import git
 from environs import Env
 import json
+import subprocess
 
 
 app = Flask(__name__)
@@ -13,6 +14,11 @@ env.read_env()
 
 @app.route("/")
 def hello_world():
+    #subprocess.run(["print('cheese')"])
+    #subprocess.run(["print('hello')", ""])
+    #process = subprocess.Popen(["mkdir", "cheese2"])
+    #process = subprocess.Popen(["sudo", "systemctl", "restart", "gunicorn"])
+    #stdout, stderr = process.communicate()
     return "<p>Hello world</p>"
 
 
@@ -36,16 +42,18 @@ def verify_signature(payload_body, secret_token, signature_header):
 def deploy_cms():
     if request.method == 'POST':
         if verify_signature(request.get_data(), env("GH_SECRET"), request.headers.get('x-hub-signature-256')):
-            # LOCAL:
-            #local_dir = '/home/user/bk/headlessDjango'
-            # LIVE:
             local_dir = '/home/jamal/headlessDjangoSite/headlessDjango'
             repo = git.Repo(local_dir)
             current = repo.head.commit
             repo.remotes.origin.pull()
             if current == repo.head.commit:
-                return "Repo not changed. Sleep mode activated.", 200
+                return "Repo not changed", 200
             else:
-                return "Repo changed! Activated.", 200
+                # Do the other things directly as Linux commands
+                #p_pip = subprocess.Popen(["pip", "install", "-r", "requirements.txt"])          # Install dependencies
+                #p_restart = subprocess.Popen(["python", "manage.py", "migrate"])      # Run db migrations
+                p_restart_g = subprocess.Popen(["sudo", "systemctl", "restart", "gunicorn"])      # Restart Django
+                p_restart_ng = subprocess.Popen(["sudo", "systemctl", "restart", "nginx"])         # Restart web server
+                return "App updated", 200
         return 'Forbidden', 403
     return 'Not allowed', 405
