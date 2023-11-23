@@ -20,10 +20,6 @@ def verify_signature(payload_body, secret_token, signature_header):
         expected_signature = "sha256=" + hash_object.hexdigest()
         return hmac.compare_digest(expected_signature, signature_header)
 
-@app.route("/")
-def hello_world():
-    return "Hello world"
-
 @app.route("/ghook_cms", methods=['POST', 'GET'])
 def deploy_cms():
     """ If the request is valid:

@@ -1,0 +1,1 @@
+A webook for Github implemented as a Flask API endpoint. When requested by Github---when code is pushed to the [headlessDjango](https://github.com/jamalrob/headlessDjango) repository--it pulls the new code and restarts the application.
